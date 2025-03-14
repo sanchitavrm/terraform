@@ -1,7 +1,7 @@
 provider "aws" {
   region     = "us-east-2"
-  access_key = "AKIAQ4NXP3NYTUIWXCW6"
-  secret_key = "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"
+  access_key = "AKIAQ4NXP3NYTUIWXCW6-1"
+  secret_key = "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-1"
 }
 
 resource "aws_instance" "Jenkins" {
