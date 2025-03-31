@@ -5,16 +5,16 @@ pipeline{
         maven "maven"
     }
     stages{
-        stage('Build') {
-            steps{
-            git "https://github.com/sanchitavrm/samplejavaapp.git"
-            sh "mvn clean package"
-             }
-        }
-        stage('Test'){
-            steps{
-                sh 'make check || true' 
-                junit '**/target/*.xml' 
+        stage('Deploy to AWS') {
+            steps {
+                // Initialize Terraform
+                sh 'terraform init'
+                
+                // Plan Terraform changes
+                sh 'terraform plan'
+                
+                // Apply Terraform changes
+                sh 'terraform apply -auto-approve'
             }
         }
     }
