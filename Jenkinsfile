@@ -2,7 +2,7 @@ pipeline{
     agent any 
     
     environment {
-        AWS_CREDENTIALS = credentials(env.ENVIRONMENT == 'prod' ? 'aws-prod-credentials' : 'aws-dev-credentials')
+        AWS_CREDENTIALS = credentials(env.ENVIRONMENT == 'prod' ? 'aws-prod-credentials' : 'aws-credentials-id')
     }
 
     stages{
