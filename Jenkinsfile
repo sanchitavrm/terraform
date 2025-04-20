@@ -7,12 +7,13 @@ pipeline{
     }
     
     environment {
-        AWS_CREDENTIALS = credentials(env.ENVIRONMENT == 'prod' ? 'aws-prod-credentials' : 'aws-credentials-id')
+        AWS_CREDENTIALS = 'aws-credentials-id'
     }
 
     stages{
         stage('Deploy to AWS') {
             steps {
+                            
                 withAWS(credentials: env.AWS_CREDENTIALS, region: 'us-east-2') {
                     // Change to services directory and initialize Terraform
                     dir('services') {
