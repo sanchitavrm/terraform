@@ -21,7 +21,7 @@ pipeline{
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
                     // Change to services directory and initialize Terraform
-                    
+                        sh 'pwd'
                         sh 'terraform init'
                         
                         script {
