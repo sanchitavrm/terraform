@@ -20,7 +20,7 @@ pipeline{
                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
-                    // Change to services directory and initialize Terraform
+                    dir('services') {
                         sh 'pwd'
                         sh 'terraform init'
                         
@@ -28,12 +28,12 @@ pipeline{
                             // Create a target list based on selected services
                             def targets = []
                             if (params.DEPLOY_EC2) {
-                                targets.add('-target=ec2.tf')
+                                targets.add('-target=module.ec2')
                             }
                             if (params.DEPLOY_VPC) {
                                 targets.add('-target=module.vpc')
                             }
-                            dir('services') {
+                            
                             // Run terraform plan with selected targets
                             if (!targets.isEmpty()) {
                                 sh "terraform plan ${targets.join(' ')}"
