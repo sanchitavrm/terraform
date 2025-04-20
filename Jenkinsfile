@@ -28,7 +28,7 @@ pipeline{
                             // Create a target list based on selected services
                             def targets = []
                             if (params.DEPLOY_EC2) {
-                                targets.add('-target=module.ec2')
+                                targets.add('ec2.tf')
                             }
                             if (params.DEPLOY_VPC) {
                                 targets.add('-target=module.vpc')
