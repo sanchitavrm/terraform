@@ -21,7 +21,7 @@ pipeline{
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
                     // Change to services directory and initialize Terraform
-                    dir('services') {
+                    
                         sh 'terraform init'
                         
                         script {
@@ -33,7 +33,7 @@ pipeline{
                             if (params.DEPLOY_VPC) {
                                 targets.add('-target=module.vpc')
                             }
-                            
+                            dir('services') {
                             // Run terraform plan with selected targets
                             if (!targets.isEmpty()) {
                                 sh "terraform plan ${targets.join(' ')}"
