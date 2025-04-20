@@ -20,10 +20,10 @@ pipeline{
                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
-                    dir('services') {
+                   
                         sh 'pwd'
                         sh 'terraform init'
-                        
+                        sh 'terraform validate'
                         script {
                             // Create a target list based on selected services
                             def targets = []
