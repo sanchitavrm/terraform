@@ -1,6 +1,11 @@
 pipeline{
     agent any 
     
+    parameters {
+        booleanParam(name: 'DEPLOY_EC2', defaultValue: false, description: 'Deploy EC2 resources')
+        booleanParam(name: 'DEPLOY_VPC', defaultValue: false, description: 'Deploy VPC resources')
+    }
+    
     environment {
         AWS_CREDENTIALS = credentials(env.ENVIRONMENT == 'prod' ? 'aws-prod-credentials' : 'aws-credentials-id')
     }
@@ -9,18 +14,36 @@ pipeline{
         stage('Deploy to AWS') {
             steps {
                 withAWS(credentials: env.AWS_CREDENTIALS, region: 'us-east-2') {
-                    // Initialize Terraform
-                    sh 'terraform init'
-                    
-                    // Plan Terraform changes with environment variables
-                    withCredentials([[
-                        $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: env.AWS_CREDENTIALS,
-                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                    ]]) {
-                        sh 'terraform plan'
-                        sh 'terraform apply -auto-approve'
+                    // Change to services directory and initialize Terraform
+                    dir('services') {
+                        sh 'terraform init'
+                        
+                        // Plan Terraform changes with environment variables
+                        withCredentials([[
+                            $class: 'AmazonWebServicesCredentialsBinding',
+                            credentialsId: env.AWS_CREDENTIALS,
+                            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                        ]]) {
+                            script {
+                                // Create a target list based on selected services
+                                def targets = []
+                                if (params.DEPLOY_EC2) {
+                                    targets.add('-target=module.ec2')
+                                }
+                                if (params.DEPLOY_VPC) {
+                                    targets.add('-target=module.vpc')
+                                }
+                                
+                                // Run terraform plan with selected targets
+                                if (!targets.isEmpty()) {
+                                    sh "terraform plan ${targets.join(' ')}"
+                                    sh "terraform apply -auto-approve ${targets.join(' ')}"
+                                } else {
+                                    echo 'No services selected for deployment'
+                                }
+                            }
+                        }
                     }
                 }
             }
