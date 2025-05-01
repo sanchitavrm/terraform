@@ -1,5 +1,5 @@
 variable "environment" {
-  description = "Environment (dev/staging)"
+  description = "The environment (dev/staging)"
   type        = string
 }
 
@@ -21,6 +21,4 @@ variable "private_subnets_cidr" {
 variable "availability_zones" {
   description = "The az that the resources will be launched"
   type        = list(string)
-}
-
-# Other variables... 
+} 
