@@ -162,14 +162,22 @@ resource "aws_launch_template" "node_group" {
   }
 
   user_data = base64encode(<<-EOF
-    #!/bin/bash
-    set -ex
-    /etc/eks/bootstrap.sh ${aws_eks_cluster.main.name} \
-      --container-runtime containerd \
-      --kubelet-extra-args '--node-labels=eks.amazonaws.com/nodegroup=${var.environment}-${each.key}-node-group' \
-      --apiserver-endpoint ${aws_eks_cluster.main.endpoint} \
-      --b64-cluster-ca ${aws_eks_cluster.main.certificate_authority[0].data}
-  EOF
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==BOUNDARY=="
+
+--==BOUNDARY==
+Content-Type: text/x-shellscript; charset="us-ascii"
+
+#!/bin/bash
+set -ex
+/etc/eks/bootstrap.sh ${aws_eks_cluster.main.name} \
+  --container-runtime containerd \
+  --kubelet-extra-args '--node-labels=eks.amazonaws.com/nodegroup=${var.environment}-${each.key}-node-group' \
+  --apiserver-endpoint ${aws_eks_cluster.main.endpoint} \
+  --b64-cluster-ca ${aws_eks_cluster.main.certificate_authority[0].data}
+
+--==BOUNDARY==--
+EOF
   )
 
   tag_specifications {

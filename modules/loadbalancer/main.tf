@@ -1,9 +1,16 @@
+# Random suffix for unique names
+resource "random_string" "suffix" {
+  length  = 8
+  special = false
+  upper   = false
+}
+
 # S3 Bucket for ALB Access Logs
 resource "aws_s3_bucket" "alb_logs" {
-  bucket = "${var.environment}-my-alb-logs-bucket"
+  bucket = "${var.environment}-my-alb-logs-bucket-${random_string.suffix.result}"
 
   tags = {
-    Name        = "${var.environment}-alb-logs"
+    Name        = "${var.environment}-my-alb-logs-bucket"
     Environment = var.environment
   }
 }
@@ -20,9 +27,7 @@ resource "aws_s3_bucket_policy" "alb_logs" {
         Principal = {
           AWS = "arn:aws:iam::${data.aws_elb_service_account.main.id}:root"
         }
-        Action = [
-          "s3:PutObject"
-        ]
+        Action = "s3:PutObject"
         Resource = "${aws_s3_bucket.alb_logs.arn}/*"
       }
     ]
@@ -58,7 +63,7 @@ resource "aws_lb" "main" {
   enable_deletion_protection = var.enable_deletion_protection
 
   access_logs {
-    bucket  = aws_s3_bucket.alb_logs.bucket
+    bucket  = aws_s3_bucket.alb_logs.id
     prefix  = var.access_logs_prefix
     enabled = var.enable_access_logs
   }
