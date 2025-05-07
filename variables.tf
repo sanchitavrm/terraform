@@ -108,6 +108,7 @@ variable "ecs_min_count" {
 variable "ecs_container_image" {
   description = "Container image for ECS tasks"
   type        = string
+  default     = "ami-0cb91c7de36eed2cb"
 }
 
 # EKS variables
