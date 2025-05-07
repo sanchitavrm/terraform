@@ -5,10 +5,25 @@ provider "aws" {
   # 9JwyBUBRJNEK5SbGFxy724NovWKYENODYds5FYx1
 } 
 
-module "ec2" {
-  source         = "./modules/ec2"
+
+# Provider configuration for dev
+provider "aws" {
+  alias  = "dev"
+  region = "us-east-2"
+  DEV_ACCOUNT_ID = 061051231089
+  
+  assume_role {
+    role_arn = "arn:aws:iam::DEV_ACCOUNT_ID:role/terraform-role"
+  }
 }
 
-module "vpc" {
-  source         = "./modules/vpc"
-}
+# Provider configuration for staging
+provider "aws" {
+  alias  = "staging"
+  region = "us-east-1"
+  STAGING_ACCOUNT_ID = 061051231089
+  
+  assume_role {
+    role_arn = "arn:aws:iam::STAGING_ACCOUNT_ID:role/terraform-role"
+  }
+} 
