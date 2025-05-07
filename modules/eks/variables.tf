@@ -3,7 +3,13 @@ variable "environment" {
   type        = string
 }
 
-variable "kubernetes_version" {
+variable "cluster_name" {
+  description = "Name of the EKS cluster"
+  type        = string
+  default     = ""
+}
+
+variable "cluster_version" {
   description = "Kubernetes version to use for the EKS cluster"
   type        = string
   default     = "1.27"
@@ -19,26 +25,28 @@ variable "security_group_id" {
   type        = string
 }
 
-variable "node_desired_size" {
-  description = "Desired number of nodes in the node group"
-  type        = number
-  default     = 2
+variable "node_groups" {
+  description = "Map of node group configurations"
+  type = map(object({
+    desired_size   = number
+    max_size       = number
+    min_size       = number
+    instance_types = list(string)
+    capacity_type  = string
+  }))
+  default = {
+    general = {
+      desired_size   = 2
+      max_size       = 4
+      min_size       = 1
+      instance_types = ["t3.medium"]
+      capacity_type  = "ON_DEMAND"
+    }
+  }
 }
 
-variable "node_max_size" {
-  description = "Maximum number of nodes in the node group"
-  type        = number
-  default     = 4
-}
-
-variable "node_min_size" {
-  description = "Minimum number of nodes in the node group"
-  type        = number
-  default     = 1
-}
-
-variable "node_instance_type" {
-  description = "EC2 instance type for the node group"
-  type        = string
-  default     = "t3.medium"
+variable "common_tags" {
+  description = "A map of tags to add to all resources"
+  type        = map(string)
+  default     = {}
 } 
