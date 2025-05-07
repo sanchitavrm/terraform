@@ -41,13 +41,10 @@ resource "aws_route53_record" "mx" {
   type    = "MX"
   ttl     = each.value.ttl
 
-  dynamic "records" {
-    for_each = each.value.records
-    content {
-      priority = records.value.priority
-      value    = records.value.value
-    }
-  }
+  records = [
+    for record in each.value.records :
+    "${record.priority} ${record.value}"
+  ]
 }
 
 # TXT Record

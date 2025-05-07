@@ -73,11 +73,6 @@ resource "aws_iam_user_policy_attachment" "main" {
 resource "aws_iam_group" "main" {
   count = var.create_group ? 1 : 0
   name  = "${var.environment}-${var.group_name}"
-
-  tags = {
-    Name        = "${var.environment}-${var.group_name}"
-    Environment = var.environment
-  }
 }
 
 # IAM Group Policy Attachment
