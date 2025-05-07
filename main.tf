@@ -149,24 +149,21 @@ module "ecs" {
 module "eks" {
   source = "./modules/eks"
 
-  environment     = var.environment
-  cluster_name    = "${var.environment}-eks-cluster"
-  cluster_version = var.eks_cluster_version
-
-  subnet_ids     = module.networking.private_subnets_ids
-  security_group_id = module.networking.security_group_id
-
+  environment        = var.environment
+  cluster_name       = "${var.environment}-eks-cluster"
+  cluster_version    = var.eks_cluster_version
+  subnet_ids         = module.networking.private_subnets_ids
+  security_group_id  = module.networking.security_group_id
   node_groups = {
     general = {
-      desired_size   = var.eks_node_desired_size
-      max_size       = var.eks_node_max_size
-      min_size       = var.eks_node_min_size
+      desired_size   = 2
+      max_size       = 4
+      min_size       = 1
       instance_types = ["t3.medium"]
       capacity_type  = "ON_DEMAND"
     }
   }
-
-  tags = {
+  common_tags = {
     Environment = var.environment
     Terraform   = "true"
   }
