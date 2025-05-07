@@ -1,3 +1,4 @@
+# Networking Module
 module "networking" {
   source = "./modules/networking"
 
@@ -8,7 +9,35 @@ module "networking" {
   availability_zones  = var.availability_zones
 }
 
-# Your EC2 module can now reference the networking outputs
+# IAM Module
+module "iam" {
+  source = "./modules/iam"
+
+  environment         = var.environment
+  role_name          = "ec2-role"
+  assume_role_service = "ec2.amazonaws.com"
+  policy_name        = "ec2-policy"
+  policy_description = "Policy for EC2 instances"
+  policy_document    = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "ec2:DescribeInstances",
+          "ec2:DescribeTags",
+          "ec2:DescribeVolumes",
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+  create_instance_profile = true
+}
+
+# EC2 Module
 module "ec2" {
   source = "./modules/ec2"
   
@@ -23,23 +52,7 @@ module "ec2" {
   root_volume_size = var.root_volume_size
 }
 
-module "autoscaling" {
-  source = "./modules/autoscaling"
-
-  environment          = var.environment
-  ami_id              = var.ami_id
-  instance_type       = var.instance_type
-  security_group_id   = module.networking.security_group_id
-  subnet_ids          = module.networking.private_subnets_ids
-  iam_instance_profile = module.iam.instance_profile_name
-  associate_public_ip = false
-  root_volume_size    = var.root_volume_size
-  desired_capacity    = var.asg_desired_capacity
-  max_size           = var.asg_max_size
-  min_size           = var.asg_min_size
-  target_group_arns   = [module.loadbalancer.target_group_arn]
-}
-
+# Load Balancer Module
 module "loadbalancer" {
   source = "./modules/loadbalancer"
 
@@ -58,31 +71,76 @@ module "loadbalancer" {
   health_check_port = "80"
 }
 
-module "iam" {
-  source = "./modules/iam"
+# Auto Scaling Module
+module "autoscaling" {
+  source = "./modules/autoscaling"
 
-  environment         = var.environment
-  role_name          = "ec2-role"
-  assume_role_service = "ec2.amazonaws.com"
-  policy_name        = "ec2-policy"
-  policy_description = "Policy for EC2 instances"
-  policy_document    = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "ec2:DescribeInstances",
-          "ec2:DescribeTags",
-          "ec2:DescribeVolumes"
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      }
-    ]
-  })
-  create_instance_profile = true
+  environment          = var.environment
+  ami_id              = var.ami_id
+  instance_type       = var.instance_type
+  security_group_id   = module.networking.security_group_id
+  subnet_ids          = module.networking.private_subnets_ids
+  iam_instance_profile = module.iam.instance_profile_name
+  associate_public_ip = false
+  root_volume_size    = var.root_volume_size
+  desired_capacity    = var.asg_desired_capacity
+  max_size           = var.asg_max_size
+  min_size           = var.asg_min_size
+  target_group_arns   = [module.loadbalancer.target_group_arn]
 }
 
+# ECS Module
+module "ecs" {
+  source = "./modules/ecs"
+
+  environment     = var.environment
+  vpc_id         = module.networking.vpc_id
+  subnet_ids     = module.networking.private_subnets_ids
+  security_group_id = module.networking.security_group_id
+
+  cluster_name   = "${var.environment}-ecs-cluster"
+  service_name   = "${var.environment}-ecs-service"
+  task_family    = "${var.environment}-task"
+  container_port = 80
+  cpu            = 256
+  memory         = 512
+
+  desired_count  = var.ecs_desired_count
+  max_count      = var.ecs_max_count
+  min_count      = var.ecs_min_count
+
+  target_group_arn = module.loadbalancer.target_group_arn
+}
+
+# EKS Module
+module "eks" {
+  source = "./modules/eks"
+
+  environment     = var.environment
+  cluster_name    = "${var.environment}-eks-cluster"
+  cluster_version = var.eks_cluster_version
+
+  vpc_id         = module.networking.vpc_id
+  subnet_ids     = module.networking.private_subnets_ids
+  security_group_id = module.networking.security_group_id
+
+  node_groups = {
+    general = {
+      desired_size = var.eks_node_desired_size
+      max_size     = var.eks_node_max_size
+      min_size     = var.eks_node_min_size
+      instance_types = ["t3.medium"]
+      capacity_type  = "ON_DEMAND"
+    }
+  }
+
+  tags = {
+    Environment = var.environment
+    Terraform   = "true"
+  }
+}
+
+# Route 53 Module
 module "route53" {
   source = "./modules/route53"
 

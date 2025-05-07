@@ -80,6 +80,50 @@ variable "access_logs_prefix" {
   default     = ""
 }
 
+# ECS variables
+variable "ecs_desired_count" {
+  description = "Desired number of ECS tasks"
+  type        = number
+  default     = 2
+}
+
+variable "ecs_max_count" {
+  description = "Maximum number of ECS tasks"
+  type        = number
+  default     = 4
+}
+
+variable "ecs_min_count" {
+  description = "Minimum number of ECS tasks"
+  type        = number
+  default     = 1
+}
+
+# EKS variables
+variable "eks_cluster_version" {
+  description = "Kubernetes version for EKS cluster"
+  type        = string
+  default     = "1.27"
+}
+
+variable "eks_node_desired_size" {
+  description = "Desired number of EKS nodes"
+  type        = number
+  default     = 2
+}
+
+variable "eks_node_max_size" {
+  description = "Maximum number of EKS nodes"
+  type        = number
+  default     = 4
+}
+
+variable "eks_node_min_size" {
+  description = "Minimum number of EKS nodes"
+  type        = number
+  default     = 1
+}
+
 # Route 53 variables
 variable "create_hosted_zone" {
   description = "Whether to create a new hosted zone"
