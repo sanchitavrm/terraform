@@ -155,6 +155,12 @@ resource "aws_ecs_service" "main" {
     assign_public_ip = false
   }
 
+  # Add explicit dependency on the load balancer listener
+  depends_on = [
+    aws_ecs_cluster.main,
+    aws_ecs_task_definition.main
+  ]
+
   tags = {
     Name        = var.service_name != "" ? var.service_name : "${var.environment}-service"
     Environment = var.environment

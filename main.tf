@@ -143,6 +143,11 @@ module "ecs" {
       }
     }
   ])
+
+  depends_on = [
+    module.loadbalancer,
+    module.autoscaling
+  ]
 }
 
 # EKS Module
