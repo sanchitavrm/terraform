@@ -1,3 +1,52 @@
+# S3 Bucket for ALB Access Logs
+resource "aws_s3_bucket" "alb_logs" {
+  bucket = "${var.environment}-my-alb-logs-bucket"
+
+  tags = {
+    Name        = "${var.environment}-alb-logs"
+    Environment = var.environment
+  }
+}
+
+# S3 Bucket Policy for ALB Access Logs
+resource "aws_s3_bucket_policy" "alb_logs" {
+  bucket = aws_s3_bucket.alb_logs.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_elb_service_account.main.id}:root"
+        }
+        Action = [
+          "s3:PutObject"
+        ]
+        Resource = "${aws_s3_bucket.alb_logs.arn}/*"
+      }
+    ]
+  })
+}
+
+# S3 Bucket ACL
+resource "aws_s3_bucket_ownership_controls" "alb_logs" {
+  bucket = aws_s3_bucket.alb_logs.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "alb_logs" {
+  depends_on = [aws_s3_bucket_ownership_controls.alb_logs]
+  bucket     = aws_s3_bucket.alb_logs.id
+  acl        = "private"
+}
+
+# Get ELB Account ID
+data "aws_elb_service_account" "main" {}
+
 # Application Load Balancer
 resource "aws_lb" "main" {
   name               = "${var.environment}-alb"
@@ -9,7 +58,7 @@ resource "aws_lb" "main" {
   enable_deletion_protection = var.enable_deletion_protection
 
   access_logs {
-    bucket  = var.access_logs_bucket
+    bucket  = aws_s3_bucket.alb_logs.bucket
     prefix  = var.access_logs_prefix
     enabled = var.enable_access_logs
   }

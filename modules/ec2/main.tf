@@ -1,6 +1,13 @@
+# Random suffix for unique names
+resource "random_string" "suffix" {
+  length  = 8
+  special = false
+  upper   = false
+}
+
 # IAM Role
 resource "aws_iam_role" "ec2_role" {
-  name = "${var.environment}-ec2-role"
+  name = "${var.environment}-ec2-role-${random_string.suffix.result}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -23,13 +30,13 @@ resource "aws_iam_role" "ec2_role" {
 
 # IAM Instance Profile
 resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "${var.environment}-ec2-profile"
+  name = "${var.environment}-ec2-profile-${random_string.suffix.result}"
   role = aws_iam_role.ec2_role.name
 }
 
 # Example IAM Policy - S3 Read Access
 resource "aws_iam_role_policy" "s3_read_policy" {
-  name = "${var.environment}-s3-read-policy"
+  name = "${var.environment}-s3-read-policy-${random_string.suffix.result}"
   role = aws_iam_role.ec2_role.id
 
   policy = jsonencode({
@@ -52,7 +59,7 @@ resource "aws_iam_role_policy" "s3_read_policy" {
 
 # Key Pair
 resource "aws_key_pair" "deployer" {
-  key_name   = "${var.environment}-deployer-key"
+  key_name   = "${var.environment}-deployer-key-${random_string.suffix.result}"
   public_key = var.ssh_public_key
 
   tags = {

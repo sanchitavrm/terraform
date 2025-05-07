@@ -67,8 +67,7 @@ module "loadbalancer" {
   certificate_arn = var.certificate_arn
 
   enable_access_logs = true
-  access_logs_bucket = var.access_logs_bucket
-  access_logs_prefix = var.access_logs_prefix
+  access_logs_prefix = "alb-logs"
 
   health_check_path = "/health"
   health_check_port = "80"
