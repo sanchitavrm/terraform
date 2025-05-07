@@ -1,3 +1,6 @@
+# Get current AWS region
+data "aws_region" "current" {}
+
 # Networking Module
 module "networking" {
   source = "./modules/networking"
@@ -96,7 +99,7 @@ module "ecs" {
   environment     = var.environment
   vpc_id         = module.networking.vpc_id
   subnet_ids     = module.networking.private_subnets_ids
-  security_group_id = module.networking.security_group_id
+  security_groups = [module.networking.security_group_id]
 
   cluster_name   = "${var.environment}-ecs-cluster"
   service_name   = "${var.environment}-ecs-service"
@@ -110,6 +113,36 @@ module "ecs" {
   min_count      = var.ecs_min_count
 
   target_group_arn = module.loadbalancer.target_group_arn
+  auto_scaling_group_arn = module.autoscaling.asg_arn
+
+  container_definitions = jsonencode([
+    {
+      name  = "${var.environment}-container"
+      image = var.ecs_container_image
+      portMappings = [
+        {
+          containerPort = 80
+          hostPort      = 80
+          protocol      = "tcp"
+        }
+      ]
+      essential = true
+      environment = [
+        {
+          name  = "ENVIRONMENT"
+          value = var.environment
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "/ecs/${var.environment}"
+          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
+    }
+  ])
 }
 
 # EKS Module

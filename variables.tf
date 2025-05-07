@@ -99,6 +99,12 @@ variable "ecs_min_count" {
   default     = 1
 }
 
+variable "ecs_container_image" {
+  description = "Docker image for ECS container"
+  type        = string
+  default     = "nginx:latest"  # Default to nginx image
+}
+
 # EKS variables
 variable "eks_cluster_version" {
   description = "Kubernetes version for EKS cluster"
