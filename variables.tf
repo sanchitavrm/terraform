@@ -43,4 +43,60 @@ variable "root_volume_size" {
   type        = number
 }
 
+# Auto Scaling Group variables
+variable "asg_desired_capacity" {
+  description = "Desired number of instances in the Auto Scaling Group"
+  type        = number
+  default     = 2
+}
+
+variable "asg_max_size" {
+  description = "Maximum number of instances in the Auto Scaling Group"
+  type        = number
+  default     = 4
+}
+
+variable "asg_min_size" {
+  description = "Minimum number of instances in the Auto Scaling Group"
+  type        = number
+  default     = 1
+}
+
+# Load Balancer variables
+variable "certificate_arn" {
+  description = "ARN of the SSL certificate for HTTPS"
+  type        = string
+}
+
+variable "access_logs_bucket" {
+  description = "S3 bucket for ALB access logs"
+  type        = string
+  default     = ""
+}
+
+variable "access_logs_prefix" {
+  description = "Prefix for ALB access logs"
+  type        = string
+  default     = ""
+}
+
+# Route 53 variables
+variable "create_hosted_zone" {
+  description = "Whether to create a new hosted zone"
+  type        = bool
+  default     = false
+}
+
+variable "domain_name" {
+  description = "Domain name for the hosted zone"
+  type        = string
+  default     = ""
+}
+
+variable "hosted_zone_id" {
+  description = "ID of an existing hosted zone"
+  type        = string
+  default     = ""
+}
+
 # Other variables... 
