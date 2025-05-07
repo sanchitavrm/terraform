@@ -129,9 +129,6 @@ resource "aws_eks_node_group" "main" {
     min_size     = each.value.min_size
   }
 
-  instance_types = each.value.instance_types
-  capacity_type  = each.value.capacity_type
-
   # Add launch template with user data
   launch_template {
     version = "$Latest"
