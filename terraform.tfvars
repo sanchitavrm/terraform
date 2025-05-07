@@ -19,10 +19,10 @@ asg_min_size        = 1
 
 # Load Balancer Configuration
 certificate_arn     = "arn:aws:acm:us-east-1:123456789012:certificate/xxxxx"  # Replace with your actual certificate ARN
-access_logs_bucket  = "my-alb-logs-bucket"
+access_logs_bucket  = "dev-my-alb-logs-bucket"
 access_logs_prefix  = "alb-logs"
 
 # Route 53 Configuration
 create_hosted_zone = true
-domain_name       = "example.com"  # Replace with your actual domain name
+domain_name       = "devexample.com"  # Replace with your actual domain name
 hosted_zone_id    = ""  # Leave empty if creating new hosted zone 
