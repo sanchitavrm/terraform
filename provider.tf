@@ -10,7 +10,7 @@ provider "aws" {
 provider "aws" {
   alias  = "dev"
   region = "us-east-2"
-  DEV_ACCOUNT_ID = 061051231089
+#  DEV_ACCOUNT_ID = 061051231089####
   
   assume_role {
     role_arn = "arn:aws:iam::DEV_ACCOUNT_ID:role/terraform-role"
@@ -21,7 +21,7 @@ provider "aws" {
 provider "aws" {
   alias  = "staging"
   region = "us-east-1"
-  STAGING_ACCOUNT_ID = 061051231089
+#  STAGING_ACCOUNT_ID = 061051231089####
   
   assume_role {
     role_arn = "arn:aws:iam::STAGING_ACCOUNT_ID:role/terraform-role"
